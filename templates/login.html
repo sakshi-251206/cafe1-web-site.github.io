@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            height: 100vh;
+            background: linear-gradient(135deg, #3e2723, #6f4e37);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box{
+            width: 360px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .login-box h2{
+            margin-bottom: 20px;
+            color: #3e2723;
+        }
+
+        .login-box input{
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        .login-box input:focus{
+            outline: none;
+            border-color: #6f4e37;
+        }
+
+        .login-box button{
+            width: 100%;
+            padding: 12px;
+            background: #6f4e37;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .login-box button:hover{
+            background: #3e2723;
+        }
+
+        .login-box p{
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .login-box a{
+            color: #6f4e37;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .login-box a:hover{
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <h2>Welcome Back ☕</h2>
+
+    <form action="/login" method="post">
+        <input type="email" name="email" placeholder="Email Address" required>
+        <input type="password" name="password" placeholder="Password" required>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p>New user?
+        <a href="/register">Create an account</a>
+    </p>
+</div>
+
+</body>
+</html>
