@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, flash
 import mysql.connector
 import os
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # ================= LOAD ENV =================
 load_dotenv()
@@ -35,48 +36,63 @@ def home():
 @app.route("/contact", methods=["POST"])
 def contact():
     if not cursor:
-        return "Database connection not available."
+        flash("Database connection not available.", "danger")
+        return redirect("/")
+
+    name = request.form.get("name")
+    email = request.form.get("email")
+    message = request.form.get("message")
+
+    if not name or not email or not message:
+        flash("All fields are required.", "warning")
+        return redirect("/")
 
     try:
-        name = request.form.get("name")
-        email = request.form.get("email")
-        message = request.form.get("message")
-
-        if not name or not email or not message:
-            return "All fields are required."
-
         sql = "INSERT INTO contact_messages (name, email, message) VALUES (%s, %s, %s)"
         cursor.execute(sql, (name, email, message))
         db.commit()
+        flash("Message sent successfully!", "success")
         return redirect("/")
     except mysql.connector.Error as e:
-        return f"Database error: {e}"
+        flash(f"Database error: {e}", "danger")
+        return redirect("/")
     except Exception as e:
-        return f"Unexpected error: {e}"
+        flash(f"Unexpected error: {e}", "danger")
+        return redirect("/")
 
 # ================= REGISTER =================
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if not cursor:
-        return "Database connection not available."
+        flash("Database connection not available.", "danger")
+        return redirect("/")
 
     if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        if not username or not email or not password:
+            flash("All fields are required.", "warning")
+            return redirect("/register")
+
         try:
-            username = request.form.get("username")
-            email = request.form.get("email")
-            password = request.form.get("password")
-
-            if not username or not email or not password:
-                return "All fields are required."
-
+            # Hash the password
+            hashed_password = generate_password_hash(password)
             sql = "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)"
-            cursor.execute(sql, (username, email, password))
+            cursor.execute(sql, (username, email, hashed_password))
             db.commit()
+            flash("Registration successful! Please login.", "success")
             return redirect("/login")
+        except mysql.connector.IntegrityError:
+            flash("Email already exists.", "danger")
+            return redirect("/register")
         except mysql.connector.Error as e:
-            return f"Database error: {e}"
+            flash(f"Database error: {e}", "danger")
+            return redirect("/register")
         except Exception as e:
-            return f"Unexpected error: {e}"
+            flash(f"Unexpected error: {e}", "danger")
+            return redirect("/register")
 
     return render_template("register.html")
 
@@ -84,29 +100,35 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if not cursor:
-        return "Database connection not available."
+        flash("Database connection not available.", "danger")
+        return redirect("/")
 
     if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        if not email or not password:
+            flash("Email and Password are required.", "warning")
+            return redirect("/login")
+
         try:
-            email = request.form.get("email")
-            password = request.form.get("password")
-
-            if not email or not password:
-                return "Email and Password are required."
-
-            sql = "SELECT * FROM users WHERE email=%s AND password=%s"
-            cursor.execute(sql, (email, password))
+            sql = "SELECT * FROM users WHERE email=%s"
+            cursor.execute(sql, (email,))
             user = cursor.fetchone()
 
-            if user:
+            if user and check_password_hash(user["password"], password):
                 session["user"] = user["username"]
+                flash(f"Welcome, {user['username']}!", "success")
                 return redirect("/")
             else:
-                return "Invalid Email or Password"
+                flash("Invalid Email or Password.", "danger")
+                return redirect("/login")
         except mysql.connector.Error as e:
-            return f"Database error: {e}"
+            flash(f"Database error: {e}", "danger")
+            return redirect("/login")
         except Exception as e:
-            return f"Unexpected error: {e}"
+            flash(f"Unexpected error: {e}", "danger")
+            return redirect("/login")
 
     return render_template("login.html")
 
@@ -114,9 +136,10 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
+    flash("You have been logged out.", "info")
     return redirect("/")
 
 # ================= RUN =================
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # dynamic port for deployment
+    port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
