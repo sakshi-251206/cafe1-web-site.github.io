@@ -506,12 +506,13 @@ button:hover {
 }
 
 @media (max-width: 900px) {
-    nav { flex-wrap: wrap; justify-content: center; }
-    nav a { margin: 5px; font-size: 14px; }
+    nav { display: flex; flex-wrap: wrap; justify-content: center; }
+    nav a { margin: 5px; font-size: 14px; position: relative; left: 0 !important; top: 0 !important; }
     #main { flex-direction: column; text-align: center; }
-    .Menu-Card, .expert-card { width: 90%; }
+    .bt1, .bt2 { width: 80%; margin: 10px auto; display: block; }
+    .Menu-Card, .expert-card { width: 90%; margin: 10px auto; }
     .items { width: 150px; height: 150px; }
-    #contact-info, #content2 { width: 90%; }
+    #contact-info, #content2 { width: 90%; margin: 10px auto; }
 }
 
 @media (max-width: 600px) {
@@ -519,12 +520,16 @@ button:hover {
     h1 { font-size: 20px; }
     p { font-size: 12px; }
     nav a { font-size: 12px; padding: 5px 8px; }
-    .image { height: 200px; width: 200px; }
+    nav { flex-direction: column; align-items: center; }
+    .image { height: 200px; width: 200px; margin: 10px auto; }
+    #main { padding: 0 10px; }
+    .bt1, .bt2 { width: 90%; font-size: 16px; }
     .Menu-Card div:first-child { height: 150px; }
     .expert-card div:first-child { height: 150px; }
     .items { width: 100px; height: 100px; }
-    #contact-info, #content2 { width: 100%; }
+    #contact-info, #content2 { width: 100%; margin: 10px 0; }
 }
+
    </style>
 </head>
 <body>
