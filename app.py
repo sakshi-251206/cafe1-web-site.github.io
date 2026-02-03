@@ -8,7 +8,7 @@ load_dotenv()
 
 # ================= APP CONFIG =================
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
+app.secret_key = os.getenv("SECRET_KEY", "default_secret_key")
 
 # ================= MYSQL CONNECTION =================
 try:
@@ -23,7 +23,8 @@ try:
     print("Database connected successfully!")
 except mysql.connector.Error as e:
     print(f"Error connecting to database: {e}")
-
+    # Optional: exit if DB is critical
+    # exit(1)
 
 # ================= HOME =================
 @app.route("/")
@@ -33,9 +34,9 @@ def home():
 # ================= CONTACT =================
 @app.route("/contact", methods=["POST"])
 def contact():
-    name = request.form["name"]
-    email = request.form["email"]
-    message = request.form["message"]
+    name = request.form.get("name")
+    email = request.form.get("email")
+    message = request.form.get("message")
 
     sql = """
         INSERT INTO contact_messages (name, email, message)
@@ -50,9 +51,9 @@ def contact():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
-        email = request.form["email"]
-        password = request.form["password"]
+        username = request.form.get("username")
+        email = request.form.get("email")
+        password = request.form.get("password")
 
         sql = """
             INSERT INTO users (username, email, password)
@@ -69,8 +70,8 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
+        email = request.form.get("email")
+        password = request.form.get("password")
 
         sql = "SELECT * FROM users WHERE email=%s AND password=%s"
         cursor.execute(sql, (email, password))
@@ -92,5 +93,5 @@ def logout():
 
 # ================= RUN =================
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # Use Railway's dynamic port or fallback to 5000
-    app.run(host="0.0.0.0", port=port, debug=True)  # debug=True helps in logs
+    port = int(os.getenv("PORT", 5000))  # Dynamic port for deployment
+    app.run(host="0.0.0.0", port=port)
